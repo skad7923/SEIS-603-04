@@ -1,7 +1,7 @@
 from datetime import date
 
 
-class Day:  # (object):
+class Day:
     """A day and its weather features.
 
     Attributes:
@@ -14,25 +14,15 @@ class Day:  # (object):
         snowTotal: float to describe the total of snow expected for the day.
     """
 
-    def __init__(self, typeOfInput, data):
+    def __init__(self, curr, min, max, description, snow):
         """Return a Day object whose date is *mm-dd-yyyy* and other attributes is 0."""
-        if typeOfInput == 'todayWeather':
-            self.date = str(date.today())
-            self.minTemp = data['main']['temp_min']
-            self.maxTemp = data['main']['temp_max']
-            self.curTemp = data['main']['temp']
-            self.description = data['weather'][0]['description']
-            self.wind = data['wind']['speed']
-            self.snowTotal = 0
 
-        else:
-            self.date = date.today()
-            self.minTemp = 0
-            self.maxTemp = 0
-            self.curTemp = 0
-            self.description = 0
-            self.wind = 0
-            self.snowTotal = 0
+        self.date = str(date.today())
+        self.curTemp = curr
+        self.minTemp = min
+        self.maxTemp = max
+        self.description = description
+        self.snow = snow
 
     def getDay(self):
         return self.date
@@ -43,7 +33,7 @@ class Day:  # (object):
     def getMaxTemp(self):
         return self.maxTemp
 
-    def getTemp(self):
+    def getCurTemp(self):
         return self.curTemp
 
     def getDescription(self):
@@ -55,10 +45,3 @@ class Day:  # (object):
     def printWeather(self):
         print("Today ", self.getDay(), "\tWeather:", self.getDescription(),"\tMin temp:", self.getMinTemp(), "\tMax temp:", self.getMaxTemp())
 
-
-    def setWeather(self, day, min, max, description, snow):
-        self.date = day
-        self.minTemp = min
-        self.maxTemp = max
-        self.description = description
-        self.snow = snow
