@@ -1,12 +1,28 @@
 from tkinter import *
-import requests
 import day, fiveDays, weather
 
 class WeatherAppDisplay():
     """"
+    Class responsible for first interface - gathering user's input and generating weather forecast reports
+                                                                        (with the help of the Weather Class)
+    Attributes:
+        zipcode: zipcode informed by the user
+        weatherRequested: type of forecast the user wants to know - today's, tomorrow or 5 days
+        unitRequested: metric (Celsius) or imperial (Fahrenheit) informed by the user
+        futureWeather: data type responsible for storing the weather data - it is a list of objects of type 'Day'
+
+        zipcodeEntered: temporary variable until user clicks Submit
+        weatherEntered: temporary variable until user clicks Submit
+        unitEntered: temporary variable until user clicks Submit
+
+        The other attributes belongs to what is shown on the screen, labels and fields
     """
 
     def __init__(self, master):
+        """"
+        Creates the first screen, where the user enters his input for asking for the forecast. When the user clicks 'Submit',
+        the method getInput is called.
+        """
 
         self.window = master
         self.window.title("Weather Game")
@@ -26,9 +42,9 @@ class WeatherAppDisplay():
         self.title.pack()
 
         self.zipcodeLabel = Label(self.middleFrame, text='Zipcode')
-        self.zipcodeEntry = Entry(self.middleFrame)
+        self.zipcodeEntered = Entry(self.middleFrame)
         self.zipcodeLabel.grid(row=0, column=1)
-        self.zipcodeEntry.grid(row=0, column=2)
+        self.zipcodeEntered.grid(row=0, column=2)
 
         self.weatherEntered = StringVar()
         self.unitEntered = StringVar()
@@ -63,13 +79,20 @@ class WeatherAppDisplay():
         return self.futureWeather
 
     def getInput(self):
+        """
+        This method is called after the user clicks on 'Submit'. It gathers all the user's input and calls other methods
+        get the weather forecast.
+        """
 
-        self.zipcode = self.zipcodeEntry.get()
+        self.zipcode = self.zipcodeEntered.get()
         self.weatherRequested =self.weatherEntered.get()
         self.unitRequested = self.unitEntered.get()
 
+        # Call method to create an object with the the forecast received from the API
         self.futureWeather = weather.WeatherForecast(self.zipcode, self.weatherRequested, self.unitRequested)
+        # Clears the input window
         self.window.withdraw()
+        # Call method for showing the forecast
         self.results = ShowWeather(self, self.futureWeather, self.zipcode, self.weatherRequested, self.unitRequested)
 
     def show(self):
@@ -78,14 +101,24 @@ class WeatherAppDisplay():
         self.window.deiconify()
 
 class ShowWeather(Toplevel):
+    """
+       Class responsible for the interface that shows the forecast - it receives as parameters all the input necessary
+    Attributes:
+        zipcode: zipcode informed by the user
+        weatherRequested: type of forecast the user wants to know - today's, tomorrow or 5 days
+        unitRequested: metric (Celsius) or imperial (Fahrenheit) informed by the user
+        futureWeather: data type responsible for storing the weather data - it is a list of objects of type 'Day'
+
+        The other attributes belongs to what is shown on the screen, labels and fields
+    """
 
     def __init__(self, master, pFutureWeather, pZipcode, pWeatherRequested, pUnitRequested):
 
         self.window = master
-        self.futureWeather = pFutureWeather
         self.zipcode = pZipcode
-        self.unitRequested = pUnitRequested
         self.weatherRequested = pWeatherRequested
+        self.unitRequested = pUnitRequested
+        self.futureWeather = pFutureWeather
 
         Toplevel.__init__(self)
         self.title("Weather")
@@ -101,7 +134,7 @@ class ShowWeather(Toplevel):
         self.titleLabel = Label(self.topFrame, text=self.titleText)
         self.titleLabel.grid(row=0, column=3)
 
-    #---- Field Names----#
+        #---- Field Names----#
         self.dateLabel = Label(self.middleFrame, text="Date")
         self.dateLabel.grid(row=2, column=1)
 
@@ -113,10 +146,10 @@ class ShowWeather(Toplevel):
 
         self.maxTempDescrLabel = Label(self.middleFrame, text="Max Temp")
         self.maxTempDescrLabel.grid(row=2, column=5)
-    #------------#
+
         #---------Today's weather data---------#
         if self.weatherRequested == "todayWeather":
-            self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getTodayDate())
+            self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(0))
             self.dateLabel.grid(row=3, column=1)
 
             self.minTempDescrLabel = Label(self.middleFrame, text="Cur Temp")
@@ -134,13 +167,16 @@ class ShowWeather(Toplevel):
             self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMaxTemp(0))
             self.maxTempDescrLabel.grid(row=3, column=5)
 
-            print()
-
+        # ---------5 days weather data---------#
         elif self.weatherRequested == "5daysWeather":
             aDay = 0
             localRow= 3
+            self.maxTempDescrLabel = Label(self.middleFrame, text="Snow")
+            self.maxTempDescrLabel.grid(row=2, column=6)
+
+            # Reads everyday in the list of Days
             while aDay < self.futureWeather.getTotalOfDays():
-                self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getTodayDate())
+                self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(aDay))
                 self.dateLabel.grid(row=localRow, column=1)
 
                 self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(aDay))
@@ -152,9 +188,6 @@ class ShowWeather(Toplevel):
                 self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMaxTemp(aDay))
                 self.maxTempDescrLabel.grid(row=localRow, column=5)
 
-                self.maxTempDescrLabel = Label(self.middleFrame, text="Snow")
-                self.maxTempDescrLabel.grid(row=localRow, column=6)
-
                 self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getSnow(aDay))
                 self.maxTempDescrLabel.grid(row=localRow, column=6)
 
@@ -163,7 +196,6 @@ class ShowWeather(Toplevel):
 
         else:
            print("interface - not yet")
-        #-------------------#
 
         self.closeButton = Button(self.bottomFrame, text="Close", command=self.onClose)
         self.closeButton.grid(row=1, column=3)

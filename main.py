@@ -1,19 +1,10 @@
-# Forecast module
-import requests, pprint
-import day, fiveDays, interface, weather
+
+import interface
 from tkinter import *
 
 window = Tk()
 
-inputData = interface.WeatherAppDisplay(window)
-
-#weatherRequested = inputData.getWeatherRequested()
-#zipcode = inputData.getZipcode()
-#unit = inputData.getUnitRequested()
-#
-#futureWeather = inputData.getFutureWeather()
-
-
+interface.WeatherAppDisplay(window)
 
 window.mainloop()
 
