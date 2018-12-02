@@ -73,7 +73,7 @@ class WeatherForecast:
 
         # Read today's weather
         if self.weatherRequested == 'todayWeather':
-            self.weatherData.append(day.Day(curr=self.rawData['main']['temp'], min=self.rawData['main']['temp_min'], max=self.rawData['main']['temp_max'], description=self.rawData['weather'][0]['description'], snow=0, date=str(date.today())))
+            self.weatherData.append(day.Day(curr=self.rawData['main']['temp'], min=self.rawData['main']['temp_min'], max=self.rawData['main']['temp_max'], description=self.rawData['weather'][0]['description'], snow=0, rain=0, date=str(date.today())))
 
         # Read 5 days forecast
         elif self.weatherRequested == '5daysWeather':
@@ -95,6 +95,7 @@ class WeatherForecast:
         min = 1000
         max = -1000
         snow = 0
+        rain = 0
 
         self.totalOfDays = 0
 
@@ -106,14 +107,19 @@ class WeatherForecast:
                 value = list(self.rawData['list'][countList]['snow'].values())
                 if value:
                     snow = snow + value[0]
+            if 'rain' in self.rawData['list'][countList]:
+                value = list(self.rawData['list'][countList]['rain'].values())
+                if value:
+                    rain = rain + value[0]
 
             # If it is the last entry on data OR the next entry refers to a different day, then creates a new 'Day' and stores the data
             if (countList == self.rawData['cnt'] - 1) or (self.rawData['list'][countList]['dt_txt'][0:10] != self.rawData['list'][countList + 1]['dt_txt'][0:10]):
-                self.weatherData.append(day.Day(0, min, max, self.rawData['list'][countList]['weather'][0]['description'], snow, self.rawData['list'][countList]['dt_txt'][0:10]))
+                self.weatherData.append(day.Day(0, min, max, self.rawData['list'][countList]['weather'][0]['description'], snow, rain, self.rawData['list'][countList]['dt_txt'][0:10]))
                 self.totalOfDays = countDays + 1
                 min = 1000
                 max = -1000
                 snow = 0
+                rain = 0
                 countDays = countDays + 1
                 self.totalOfDays = countDays
             countList = countList + 1
@@ -137,6 +143,10 @@ class WeatherForecast:
     def getSnow(self, dayRequested):
         day = dayRequested
         return self.weatherData[day].getSnow()
+
+    def getRain(self, dayRequested):
+        day = dayRequested
+        return self.weatherData[day].getRain()
 
     def getTotalOfDays(self):
         return self.totalOfDays

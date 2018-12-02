@@ -38,7 +38,7 @@ class WeatherAppDisplay():
         self.bottomFrame = Frame(self.window)
         self.bottomFrame.pack(side=BOTTOM)
 
-        self.title = Label(self.topFrame, text="What's the weather, Lucas?")
+        self.title = Label(self.topFrame, text="What's the weather?")
         self.title.pack()
 
         self.zipcodeLabel = Label(self.middleFrame, text='Zipcode')
@@ -90,6 +90,7 @@ class WeatherAppDisplay():
 
         # Call method to create an object with the the forecast received from the API
         self.futureWeather = weather.WeatherForecast(self.zipcode, self.weatherRequested, self.unitRequested)
+
         # Clears the input window
         self.window.withdraw()
         # Call method for showing the forecast
@@ -120,6 +121,11 @@ class ShowWeather(Toplevel):
         self.unitRequested = pUnitRequested
         self.futureWeather = pFutureWeather
 
+        if self.futureWeather == 'metric':
+            self.unitDisplay = '(C)'
+        else:
+            self.unitDisplay = '(F)'
+
         Toplevel.__init__(self)
         self.title("Weather")
 
@@ -138,13 +144,13 @@ class ShowWeather(Toplevel):
         self.dateLabel = Label(self.middleFrame, text="Date")
         self.dateLabel.grid(row=2, column=1)
 
-        self.weatherDescrLabel = Label(self.middleFrame, text="Description")
+        self.weatherDescrLabel = Label(self.middleFrame, text="   Description   ")
         self.weatherDescrLabel.grid(row=2, column=3)
 
-        self.minTempDescrLabel = Label(self.middleFrame, text="Min Temp")
+        self.minTempDescrLabel = Label(self.middleFrame, text=" Min Temp " +self.unitDisplay)
         self.minTempDescrLabel.grid(row=2, column=4)
 
-        self.maxTempDescrLabel = Label(self.middleFrame, text="Max Temp")
+        self.maxTempDescrLabel = Label(self.middleFrame, text=" Max Temp "+self.unitDisplay)
         self.maxTempDescrLabel.grid(row=2, column=5)
 
         #---------Today's weather data---------#
@@ -152,7 +158,7 @@ class ShowWeather(Toplevel):
             self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(0))
             self.dateLabel.grid(row=3, column=1)
 
-            self.minTempDescrLabel = Label(self.middleFrame, text="Cur Temp")
+            self.minTempDescrLabel = Label(self.middleFrame, text=" Cur Temp "+self.unitDisplay)
             self.minTempDescrLabel.grid(row=2, column=2)
 
             self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getCurTemp(0))
@@ -171,8 +177,10 @@ class ShowWeather(Toplevel):
         elif self.weatherRequested == "5daysWeather":
             aDay = 0
             localRow= 3
-            self.maxTempDescrLabel = Label(self.middleFrame, text="Snow")
-            self.maxTempDescrLabel.grid(row=2, column=6)
+            self.snowLabel = Label(self.middleFrame, text="Snow (mm)")
+            self.snowLabel.grid(row=2, column=6)
+            self.rainLabel = Label(self.middleFrame, text="Rain (mm)")
+            self.rainLabel.grid(row=2, column=7)
 
             # Reads everyday in the list of Days
             while aDay < self.futureWeather.getTotalOfDays():
@@ -188,8 +196,11 @@ class ShowWeather(Toplevel):
                 self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMaxTemp(aDay))
                 self.maxTempDescrLabel.grid(row=localRow, column=5)
 
-                self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getSnow(aDay))
-                self.maxTempDescrLabel.grid(row=localRow, column=6)
+                self.snowLabel = Label(self.middleFrame, text=self.futureWeather.getSnow(aDay))
+                self.snowLabel.grid(row=localRow, column=6)
+
+                self.rainLabel = Label(self.middleFrame, text=self.futureWeather.getRain(aDay))
+                self.rainLabel.grid(row=localRow, column=7)
 
                 aDay = aDay + 1
                 localRow = localRow+1
