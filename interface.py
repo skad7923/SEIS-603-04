@@ -1,5 +1,5 @@
 from tkinter import *
-import day, fiveDays, weather
+import weather
 
 class WeatherAppDisplay():
     """"
@@ -206,7 +206,28 @@ class ShowWeather(Toplevel):
                 localRow = localRow+1
 
         else:
-           print("interface - not yet")
+            self.snowLabel = Label(self.middleFrame, text="Snow (mm)")
+            self.snowLabel.grid(row=2, column=6)
+            self.rainLabel = Label(self.middleFrame, text="Rain (mm)")
+            self.rainLabel.grid(row=2, column=7)
+
+            self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(0))
+            self.dateLabel.grid(row=3, column=1)
+
+            self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(0))
+            self.weatherDescrLabel.grid(row=3, column=3)
+
+            self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMinTemp(0))
+            self.minTempDescrLabel.grid(row=3, column=4)
+
+            self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMaxTemp(0))
+            self.maxTempDescrLabel.grid(row=3, column=5)
+
+            self.snowLabel = Label(self.middleFrame, text=self.futureWeather.getSnow(0))
+            self.snowLabel.grid(row=3, column=6)
+
+            self.rainLabel = Label(self.middleFrame, text=self.futureWeather.getRain(0))
+            self.rainLabel.grid(row=3, column=7)
 
         self.closeButton = Button(self.bottomFrame, text="Close", command=self.onClose)
         self.closeButton.grid(row=1, column=3)
