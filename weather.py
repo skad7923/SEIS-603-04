@@ -76,12 +76,8 @@ class WeatherForecast:
             self.weatherData.append(day.Day(curr=self.rawData['main']['temp'], min=self.rawData['main']['temp_min'], max=self.rawData['main']['temp_max'], description=self.rawData['weather'][0]['description'], snow=0, date=str(date.today())))
 
         # Read 5 days forecast
-        elif self.weatherRequested == '5daysWeather':
-            self.readFiveDaysRawData()
-
         else:
-            self.readTomorrowRawData()
-
+            self.readFiveDaysRawData()
 
     def readFiveDaysRawData(self):
         """
@@ -110,35 +106,6 @@ class WeatherForecast:
             # If it is the last entry on data OR the next entry refers to a different day, then creates a new 'Day' and stores the data
             if (countList == self.rawData['cnt'] - 1) or (self.rawData['list'][countList]['dt_txt'][0:10] != self.rawData['list'][countList + 1]['dt_txt'][0:10]):
                 self.weatherData.append(day.Day(0, min, max, self.rawData['list'][countList]['weather'][0]['description'], snow, self.rawData['list'][countList]['dt_txt'][0:10]))
-                self.totalOfDays = countDays + 1
-                min = 1000
-                max = -1000
-                snow = 0
-                countDays = countDays + 1
-                self.totalOfDays = countDays
-            countList = countList + 1
-
-    def readTomorrowRawData(self):
-
-        countList = 0
-        countDays = 0
-
-        min = 1000
-        max = -1000
-        snow = 0
-
-        self.totalOfDays = 0
-
-        while countList < self.rawData['cnt']:
-            min = getTheLess(self.rawData['list'][countList]['main']['temp_min'], min)
-            max = getTheGreater(self.rawData['list'][countList]['main']['temp_max'], max)
-            if 'snow' in self.rawData['list'][countList]:
-                value = list(self.rawData['list'][countList]['snow'].values())
-                if value:
-                    snow = snow + value[0]
-
-            if (countList == self.rawData['cnt'] - 1) or (self.rawData['list'][countList]['dt_txt'][0:10] != self.rawData['list'][countList + 1]['dt_txt'][0:10]):
-                self.weatherData.append(day.Day(1, min, max, self.rawData['list'][countList]['weather'][0]['description'], snow, self.rawData['list'][countList]['dt_txt'][0:10]))
                 self.totalOfDays = countDays + 1
                 min = 1000
                 max = -1000

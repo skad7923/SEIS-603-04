@@ -38,7 +38,7 @@ class WeatherAppDisplay():
         self.bottomFrame = Frame(self.window)
         self.bottomFrame.pack(side=BOTTOM)
 
-        self.title = Label(self.topFrame, text="What's the weather, Lucas?")
+        self.title = Label(self.topFrame, text="What's the weather?")
         self.title.pack()
 
         self.zipcodeLabel = Label(self.middleFrame, text='Zipcode')
@@ -195,7 +195,22 @@ class ShowWeather(Toplevel):
                 localRow = localRow+1
 
         else:
-           print("interface - not yet")
+            self.maxTempDescrLabel = Label(self.middleFrame, text="Snow")
+            self.maxTempDescrLabel.grid(row=2, column=6)
+
+            self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(1))
+            self.dateLabel.grid(row=3, column=1)
+
+            self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(1))
+            self.weatherDescrLabel.grid(row=3, column=3)
+
+            self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMinTemp(1))
+            self.minTempDescrLabel.grid(row=3, column=4)
+
+            self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMaxTemp(1))
+            self.maxTempDescrLabel.grid(row=3, column=5)
+            self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getSnow(1))
+            self.maxTempDescrLabel.grid(row=3, column=6)
 
         self.closeButton = Button(self.bottomFrame, text="Close", command=self.onClose)
         self.closeButton.grid(row=1, column=3)
