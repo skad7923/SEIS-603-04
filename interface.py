@@ -1,5 +1,10 @@
 from tkinter import *
-import weather
+from datetime import date
+import zipcodes
+from PIL import Image, ImageTk
+
+import weather, weatherMeme
+import constant as c
 
 class WeatherAppDisplay():
     """"
@@ -25,11 +30,11 @@ class WeatherAppDisplay():
         """
 
         self.window = master
-        self.window.title("Weather Game")
+        self.window.title("Weather")
 
         self.zipcode = 0
-        self.weatherRequested = "todayWeather"
-        self.unitRequested = "metric"
+        self.weatherRequested = c.FIVE_DAYS_WEATHER
+        self.unitRequested = c.CELSIUS
 
         self.topFrame = Frame(self.window, width=500, height=500)
         self.topFrame.pack(side=TOP)
@@ -41,27 +46,31 @@ class WeatherAppDisplay():
         self.title = Label(self.topFrame, text="What's the weather?")
         self.title.pack()
 
-        self.zipcodeLabel = Label(self.middleFrame, text='Zipcode')
+        self.zipcodeLabel = Label(self.middleFrame, text='Zipcode' )
         self.zipcodeEntered = Entry(self.middleFrame)
         self.zipcodeLabel.grid(row=0, column=1)
         self.zipcodeEntered.grid(row=0, column=2)
 
         self.weatherEntered = StringVar()
         self.unitEntered = StringVar()
-        self.todayButton = Radiobutton(self.middleFrame, text='Today', justify=RIGHT, tristatevalue=0, variable=self.weatherEntered, value="todayWeather")
+        self.todayButton = Radiobutton(self.middleFrame, state='active',text='Today', justify=RIGHT, variable=self.weatherEntered, value=c.TODAY_WEATHER)
         self.todayButton.grid(row=1, column=1)
 
-        self.tomorrowButton = Radiobutton(self.middleFrame, text='Tomorrow', justify=LEFT, tristatevalue=0, variable=self.weatherEntered, value="tomorrowWeather")
+        self.tomorrowButton = Radiobutton(self.middleFrame, text='Tomorrow', justify=LEFT, tristatevalue=0, variable=self.weatherEntered, value=c.TOMORROW_WEATHER)
         self.tomorrowButton.grid(row=2, column=1)
 
-        self.fiveDaysButton = Radiobutton(self.middleFrame, text='5 Days', justify=LEFT, tristatevalue=0, variable=self.weatherEntered, value="5daysWeather")
+        self.fiveDaysButton = Radiobutton(self.middleFrame, text='5 Days', justify=LEFT, tristatevalue=0, variable=self.weatherEntered, value=c.FIVE_DAYS_WEATHER)
         self.fiveDaysButton.grid(row=3, column=1)
 
-        self.celsiusButton = Radiobutton(self.middleFrame, text='Celsius', justify=LEFT, tristatevalue=0, variable=self.unitEntered, value="metric")
+        self.celsiusButton = Radiobutton(self.middleFrame, state='active', text='Celsius', justify=LEFT, variable=self.unitEntered, value=c.CELSIUS)
         self.celsiusButton.grid(row=1, column=4)
 
-        self.fahrenheitButton = Radiobutton(self.middleFrame, text='Fahrenheit', justify=LEFT, tristatevalue=0, variable=self.unitEntered, value="imperial")
+        self.fahrenheitButton = Radiobutton(self.middleFrame, text='Fahrenheit', justify=LEFT, tristatevalue=0, variable=self.unitEntered, value=c.FAHRENHEIT)
         self.fahrenheitButton.grid(row=2, column=4)
+
+        # Default values
+        self.unitEntered.set(c.CELSIUS)
+        self.weatherEntered.set(c.TODAY_WEATHER)
 
         self.submitButton = Button(self.bottomFrame, text='Submit', command=self.getInput)
         self.submitButton.pack()
@@ -84,17 +93,21 @@ class WeatherAppDisplay():
         get the weather forecast.
         """
 
+        #Getting user's input
         self.zipcode = self.zipcodeEntered.get()
         self.weatherRequested =self.weatherEntered.get()
         self.unitRequested = self.unitEntered.get()
 
-        # Call method to create an object with the the forecast received from the API
-        self.futureWeather = weather.WeatherForecast(self.zipcode, self.weatherRequested, self.unitRequested)
-
-        # Clears the input window
-        self.window.withdraw()
-        # Call method for showing the forecast
-        self.results = ShowWeather(self, self.futureWeather, self.zipcode, self.weatherRequested, self.unitRequested)
+        # Test if a valid zipcode was provided
+        if self.zipcode != '' and self.zipcode.isdigit() and zipcodes.is_valid(self.zipcode):
+            # Call method to create an object with the the forecast received from the API
+            self.futureWeather = weather.WeatherForecast(self.zipcode, self.weatherRequested, self.unitRequested)
+            # Clears the input window
+            self.window.withdraw()
+            # Call method for showing the forecast
+            self.results = ShowWeather(self, self.futureWeather, self.zipcode, self.weatherRequested, self.unitRequested)
+        else:
+            print("Provide a valid zipcode.")
 
     def show(self):
         """"""
@@ -121,7 +134,7 @@ class ShowWeather(Toplevel):
         self.unitRequested = pUnitRequested
         self.futureWeather = pFutureWeather
 
-        if self.futureWeather == 'metric':
+        if self.unitRequested == 'metric':
             self.unitDisplay = '(C)'
         else:
             self.unitDisplay = '(F)'
@@ -145,7 +158,7 @@ class ShowWeather(Toplevel):
         self.dateLabel.grid(row=2, column=1)
 
         self.weatherDescrLabel = Label(self.middleFrame, text="   Description   ")
-        self.weatherDescrLabel.grid(row=2, column=3)
+        self.weatherDescrLabel.grid(row=2, column=2)
 
         self.minTempDescrLabel = Label(self.middleFrame, text=" Min Temp " +self.unitDisplay)
         self.minTempDescrLabel.grid(row=2, column=4)
@@ -154,18 +167,18 @@ class ShowWeather(Toplevel):
         self.maxTempDescrLabel.grid(row=2, column=5)
 
         #---------Today's weather data---------#
-        if self.weatherRequested == "todayWeather":
+        if self.weatherRequested == c.TODAY_WEATHER:
             self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(0))
             self.dateLabel.grid(row=3, column=1)
 
-            self.minTempDescrLabel = Label(self.middleFrame, text=" Cur Temp "+self.unitDisplay)
-            self.minTempDescrLabel.grid(row=2, column=2)
+            self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(0))
+            self.weatherDescrLabel.grid(row=3, column=2)
+
+            self.minTempDescrLabel = Label(self.middleFrame, text=" Cur Temp " + self.unitDisplay)
+            self.minTempDescrLabel.grid(row=2, column=3)
 
             self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getCurTemp(0))
-            self.minTempDescrLabel.grid(row=3, column=2)
-
-            self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(0))
-            self.weatherDescrLabel.grid(row=3, column=3)
+            self.minTempDescrLabel.grid(row=3, column=3)
 
             self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMinTemp(0))
             self.minTempDescrLabel.grid(row=3, column=4)
@@ -174,7 +187,7 @@ class ShowWeather(Toplevel):
             self.maxTempDescrLabel.grid(row=3, column=5)
 
         # ---------5 days weather data---------#
-        elif self.weatherRequested == "5daysWeather":
+        elif self.weatherRequested == c.FIVE_DAYS_WEATHER:
             aDay = 0
             localRow= 3
             self.snowLabel = Label(self.middleFrame, text="Snow (mm)")
@@ -211,23 +224,39 @@ class ShowWeather(Toplevel):
             self.rainLabel = Label(self.middleFrame, text="Rain (mm)")
             self.rainLabel.grid(row=2, column=7)
 
-            self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(0))
+            if self.futureWeather.getDate(0) == str(date.today()):
+                tomorrowDay = 1
+            else:
+                tomorrowDay = 0
+            self.dateLabel = Label(self.middleFrame, text=self.futureWeather.getDate(tomorrowDay))
             self.dateLabel.grid(row=3, column=1)
 
-            self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(0))
+            self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(tomorrowDay))
             self.weatherDescrLabel.grid(row=3, column=3)
 
-            self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMinTemp(0))
+            self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMinTemp(tomorrowDay))
             self.minTempDescrLabel.grid(row=3, column=4)
 
-            self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMaxTemp(0))
+            self.maxTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMaxTemp(tomorrowDay))
             self.maxTempDescrLabel.grid(row=3, column=5)
 
-            self.snowLabel = Label(self.middleFrame, text=self.futureWeather.getSnow(0))
+            self.snowLabel = Label(self.middleFrame, text=self.futureWeather.getSnow(tomorrowDay))
             self.snowLabel.grid(row=3, column=6)
 
-            self.rainLabel = Label(self.middleFrame, text=self.futureWeather.getRain(0))
+            self.rainLabel = Label(self.middleFrame, text=self.futureWeather.getRain(tomorrowDay))
             self.rainLabel.grid(row=3, column=7)
+
+        # Select and show weather meme
+        self.image = weatherMeme.WeatherMeme()
+        self.imageName = self.image.findMeme(self.futureWeather, self.unitRequested)
+        try:
+            self.loadImage = Image.open(self.imageName)
+            self.renderImage = ImageTk.PhotoImage(self.loadImage)
+            self.img = Label(self.middleFrame, image=self.renderImage)
+            self.img.image = self.renderImage
+            self.img.grid(row=9, columnspan=8)
+        except IOError:
+            print("Image not found.")
 
         self.closeButton = Button(self.bottomFrame, text="Close", command=self.onClose)
         self.closeButton.grid(row=1, column=3)
@@ -239,7 +268,6 @@ class ShowWeather(Toplevel):
         """"""
         self.destroy()
         exit()
-
 
     def tryAgain(self):
         """"""
