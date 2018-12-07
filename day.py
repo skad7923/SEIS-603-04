@@ -36,7 +36,7 @@ class Day:
         return round(self.curTemp, 1)
 
     def getDescription(self):
-        return self.description
+        return self.description.title()
 
     def getSnow(self):
         return round(self.snow,2)

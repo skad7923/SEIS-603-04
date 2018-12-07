@@ -201,7 +201,7 @@ class ShowWeather(Toplevel):
                 self.dateLabel.grid(row=localRow, column=1)
 
                 self.weatherDescrLabel = Label(self.middleFrame, text=self.futureWeather.getDescription(aDay))
-                self.weatherDescrLabel.grid(row=localRow, column=3)
+                self.weatherDescrLabel.grid(row=localRow, column=2)
 
                 self.minTempDescrLabel = Label(self.middleFrame, text=self.futureWeather.getMinTemp(aDay))
                 self.minTempDescrLabel.grid(row=localRow, column=4)
